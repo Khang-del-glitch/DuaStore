@@ -5,60 +5,34 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <!-- ★ THEME: Inline script CHẠY NGAY trước render → đọc localStorage
-         set data-theme lên <html> → tránh flash trắng/sáng khi reload.
-         Key localStorage: 'duastore-theme' (dùng chung với admin). -->
     <script>document.documentElement.setAttribute('data-theme',localStorage.getItem('duastore-theme')||'light')</script>
-    <!--
-        Tiêu đề tự ghép: trang con đặt <title>X</title> → kết quả "X — DuaStore"
-    -->
     <title layout:title-pattern="$CONTENT_TITLE — DuaStore">DuaStore</title>
 
-    <!-- Bootstrap 5.3 -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
-    <!-- SwiperJS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-    <!-- Google Fonts: Dancing Script (logo) + DM Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;display=swap"/>
-    <!-- CSS chính -->
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
 
-    <!-- [SLOT] Trang con thêm CSS / meta riêng -->
     <th:block layout:fragment="extra-head"></th:block>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════
-     NAVBAR
-     Design: nền đen, logo cursive, mega dropdown 2 cột
-════════════════════════════════════════════════════ -->
 <nav class="ds-navbar navbar navbar-expand-lg">
     <div class="container-xl">
         <div class="d-flex align-items-center w-100 gap-3">
 
-            <!-- ═══════════════════════════════════════════
-                 EDIT TOGGLE TẠI ĐÂY — nút </> / ✕
-                 Thay đổi icon, style, vị trí tại đây
-                 ═══════════════════════════════════════════ -->
             <button class="ds-nav-toggle" id="dsNavToggle"
                     type="button" aria-label="Mở menu">
                 <span class="ds-toggle-text" id="dsToggleIcon">&lt;/&gt;</span>
             </button>
-            <!-- ═══════════════════════════════════════════
-                 KẾT THÚC EDIT TOGGLE
-                 ═══════════════════════════════════════════ -->
-
-            <!-- Logo -->
             <a class="ds-logo me-auto me-lg-0" th:href="@{/}">DuaStore</a>
 
-            <!-- Desktop nav (hidden on mobile) -->
             <ul class="ds-nav-list-desktop d-none d-lg-flex" id="dsNavDesktop">
                 <li><a class="ds-nav-link-desktop" th:href="@{/}">Giới thiệu</a></li>
                 <li class="dropdown">
@@ -107,29 +81,19 @@
                 <li><a class="ds-nav-link-desktop" th:href="@{/blog}">Blog</a></li>
                 <li><a class="ds-nav-link-desktop" th:href="@{/lien-he}">Liên hệ</a></li>
             </ul>
-            <!-- /Desktop nav -->
-
-            <!-- ═══════════════════════════════════════════
-                 EDIT MOBILE PANEL TẠI ĐÂY — panel trượt bên trái
-                 ═══════════════════════════════════════════ -->
             <div class="ds-nav-overlay" id="dsNavOverlay"></div>
             <div class="ds-nav-panel" id="dsNavPanel">
                 <div class="ds-nav-panel-header">
                     <a class="ds-logo-panel" th:href="@{/}">DuaStore</a>
                 </div>
                 <ul class="ds-nav-list">
-            <!-- ═══════════════════════════════════════════
-                 KẾT THÚC EDIT MOBILE PANEL
-                 ═══════════════════════════════════════════ -->
-
-                    <li class="ds-nav-item">
+            <li class="ds-nav-item">
                         <a class="ds-nav-link" th:href="@{/}">
                             <i class="bi bi-house"></i>
                             <span>Giới thiệu</span>
                         </a>
                     </li>
 
-                    <!-- Sản phẩm với sub-menu -->
                     <li class="ds-nav-item ds-has-sub">
                         <a class="ds-nav-link ds-sub-toggle" href="#">
                             <i class="bi bi-box-seam"></i>
@@ -176,9 +140,6 @@
 
                 <div class="ds-nav-panel-footer">
 
-                    <!-- ★ PROFILE MOBILE (logged in)
-                         Giống desktop dropdown nhưng ở dạng nav link trong panel
-                         Backend cần set session: loggedIn, userName, userEmail, userInitial -->
                     <div class="ds-panel-profile" th:if="${session.loggedIn}">
                         <div class="ds-panel-profile-header">
                             <span class="ds-profile-avatar" th:text="${session.userInitial}">A</span>
@@ -194,7 +155,6 @@
                         <a class="ds-nav-link ds-nav-logout" th:href="@{/dang-xuat}"><i class="bi bi-box-arrow-right"></i><span>Đăng xuất</span></a>
                     </div>
 
-                    <!-- ★ NON-LOGGED-IN: Yêu thích, Giỏ hàng, Đăng nhập, Đăng ký -->
                     <th:block th:unless="${session.loggedIn}">
                         <a class="ds-nav-link" th:href="@{/wishlist}">
                             <i class="bi bi-heart"></i>
@@ -212,15 +172,8 @@
 
                 </div>
             </div>
-            <!-- /mobile panel -->
-
-            <!-- ═══════════════════════════════════════════
-                 Right: Search + icon actions + auth buttons
-                 EDIT TOGGLE TẠI ĐÂY — search nếu muốn thay đổi
-                 ═══════════════════════════════════════════ -->
             <div class="ds-nav-right ms-auto d-flex align-items-center gap-2">
 
-                <!-- Search (luôn hiện) -->
                 <form th:action="@{/san-pham}" method="get" class="ds-search-inline" role="search">
                     <i class="bi bi-search"></i>
                     <input type="search" name="keyword"
@@ -230,28 +183,66 @@
                            aria-label="Tìm kiếm"/>
                 </form>
 
-                <!-- Wishlist -->
-                <a class="ds-icon-btn" th:href="@{/wishlist}"
-                   title="Danh sách yêu thích" aria-label="Yêu thích">
-                    <i class="bi bi-heart"></i>
-                </a>
+                <div class="position-relative d-inline-block">
+                    <button class="ds-icon-btn" id="btn-wishlist-toggle" onclick="togglePopup('wishlist-popup')"
+                            title="Danh sách yêu thích" aria-label="Yêu thích">
+                        <i class="bi bi-heart"></i>
+                    </button>
 
-                <!-- Giỏ hàng + badge -->
-                <a class="ds-icon-btn ds-cart-wrap" th:href="@{/gio-hang}"
-                   title="Giỏ hàng" aria-label="Giỏ hàng">
-                    <i class="bi bi-bag"></i>
-                    <span id="cartBadge"
-                          class="ds-cart-badge"
-                          th:text="${cartCount != null ? cartCount : 0}"
-                          th:classappend="${(cartCount == null || cartCount == 0) ? ' d-none' : ''}">
-                        0
-                    </span>
-                </a>
+                    <div id="wishlist-popup" class="custom-popup">
+                        <h6 class="border-bottom pb-2 mb-0 fw-bold">Sản phẩm yêu thích</h6>
+                        <div id="wishlist-items-container">
+                            <div class="popup-item" id="wishlist-item-1">
+                                <img th:src="@{/uploads/binh-hoa-trong-25cm.jpg}" class="popup-item-img" alt="Ảnh SP">
+                                <div class="popup-item-info">
+                                    <a th:href="@{/san-pham/3}">Bình Hoa Pha Lê Cát Cành</a>
+                                    <div class="text-danger fw-semibold mt-1">450.000đ</div>
+                                    <button class="btn btn-sm btn-outline-primary mt-2 w-100" onclick="addToCartFromWishlist(3, 1)">
+                                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                                <button class="btn-delete-item" onclick="removeWishlist(1)" title="Xóa">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <!-- ★ PROFILE / LOGIN (desktop)
-                     session.loggedIn == true → avatar + dropdown (HS, Hoạt động, Đã lưu, Cài đặt, Theme, ĐX)
-                     session.loggedIn == false/null → nút "Đăng nhập"
-                     Backend set session: loggedIn, userName, userEmail, userInitial -->
+                <div class="position-relative d-inline-block ds-cart-wrap">
+                    <button class="ds-icon-btn" id="btn-cart-toggle" onclick="togglePopup('cart-popup')"
+                            title="Giỏ hàng" aria-label="Giỏ hàng">
+                        <i class="bi bi-bag"></i>
+                        <span id="cartBadge"
+                              class="ds-cart-badge"
+                              th:text="${cartCount != null ? cartCount : 0}"
+                              th:classappend="${(cartCount == null || cartCount == 0) ? ' d-none' : ''}">
+                            0
+                        </span>
+                    </button>
+
+                    <div id="cart-popup" class="custom-popup">
+                        <h6 class="border-bottom pb-2 mb-0 fw-bold">Giỏ hàng của bạn</h6>
+                        <div id="cart-items-container">
+                            <div class="popup-item" id="cart-item-1">
+                                <a th:href="@{/san-pham/1}">
+                                    <img th:src="@{/uploads/chai-tron-100ml-nap-go.jpg}" class="popup-item-img" alt="Ảnh SP">
+                                </a>
+                                <div class="popup-item-info">
+                                    <a th:href="@{/san-pham/1}" class="text-truncate" style="max-width: 180px;">Chai Thủy Tinh (100ml - Nắp Gỗ)</a>
+                                    <div class="mt-1">Số lượng: 2 x <span class="text-danger fw-semibold">23.000đ</span></div>
+                                </div>
+                                <button class="btn-delete-item" onclick="removeCartItem(1)" title="Xóa khỏi giỏ">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 pt-3 border-top">
+                            <a th:href="@{/gio-hang}" class="btn btn-primary w-100 fw-semibold">Thanh toán tất cả</a>
+                        </div>
+                    </div>
+                </div>
                 <div class="ds-profile-wrap d-none d-lg-flex align-items-center" th:if="${session.loggedIn}">
                     <button class="ds-profile-trigger" id="dsProfileTrigger" type="button">
                         <span class="ds-profile-avatar" th:text="${session.userInitial}">A</span>
@@ -284,21 +275,12 @@
                     <i class="bi bi-person"></i>
                     <span>Đăng nhập</span>
                 </a>
-                <!-- ═══════════════════════════════════════════
-                     END PROFILE / LOGIN
-                     ═══════════════════════════════════════════ -->
-
+                </div>
             </div>
-            <!-- ═══════════════════════════════════════════
-                 KẾT THÚC EDIT TOGGLE — Right section
-                 ═══════════════════════════════════════════ -->
-        </div>
 
-    </div><!-- /container-xl -->
-</nav>
+    </div></nav>
 
-                <!-- ★ FLASH MESSAGES — successMsg/errorMsg → tự ẩn sau 5s (main.js:118-125) -->
-<div class="container-xl px-4"
+                <div class="container-xl px-4"
      th:if="${successMsg != null or errorMsg != null}">
     <div th:if="${successMsg}"
          class="alert alert-success alert-dismissible fade show mt-3 mb-0" role="alert">
@@ -314,28 +296,17 @@
     </div>
 </div>
 
-<!-- ════════════════════════════════════════════════════
-     NỘI DUNG CHÍNH
-     Trang con replace nội dung bên trong fragment này
-════════════════════════════════════════════════════ -->
 <main id="main-content">
     <th:block layout:fragment="content">
-        <!-- Trang con sẽ inject nội dung vào đây -->
-    </th:block>
+        </th:block>
 </main>
 
-<!-- ════════════════════════════════════════════════════
-     FOOTER
-     Design: nội dung nằm trong card bo góc + copyright row
-════════════════════════════════════════════════════ -->
 <footer class="ds-footer">
     <div class="container-xl">
 
-        <!-- Card chứa nội dung footer -->
         <div class="ds-footer-card">
             <div class="row g-5">
 
-                <!-- Trái: Logo + địa chỉ + social -->
                 <div class="col-12 col-lg-4">
                     <div class="ds-footer-logo">DuaStore</div>
 
@@ -373,7 +344,6 @@
                     </div>
                 </div>
 
-                <!-- Phải: 4 cột link -->
                 <div class="col-12 col-lg-8">
                     <div class="row g-4">
 
@@ -422,10 +392,7 @@
                 </div>
 
             </div>
-        </div><!-- /ds-footer-card -->
-
-        <!-- Copyright row -->
-            <div class="ds-footer-bottom">
+        </div><div class="ds-footer-bottom">
                 <span>© 2026 DuaStore. All rights reserved.</span>
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     <div class="ds-footer-legal">
@@ -436,10 +403,8 @@
             </div>
         </div>
 
-    </div><!-- /container-xl -->
-</footer>
+    </div></footer>
 
-<!-- Zalo float -->
 <a href="https://zalo.me/0901234567"
    target="_blank"
    rel="noopener noreferrer"
@@ -449,7 +414,6 @@
     <i class="bi bi-chat-dots-fill"></i>
 </a>
 
-<!-- Back to top -->
 <button class="ds-float-top" id="backTopBtn"
         style="display:none"
         onclick="window.scrollTo({top:0,behavior:'smooth'})"
@@ -457,13 +421,59 @@
     <i class="bi bi-chevron-up"></i>
 </button>
 
-<!-- ★ SCRIPTS — thứ tự: Bootstrap → SwiperJS → ScrollReveal → main.js (thêm thư viện trước main.js) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://unpkg.com/scrollreveal@4.0.9/dist/scrollreveal.min.js"></script>
 <script th:src="@{/js/main.js}"></script>
 
-<!-- [SLOT] Trang con thêm script riêng -->
+<script>
+    // Hàm bật tắt hiển thị popup
+    function togglePopup(popupId) {
+        // Ẩn tất cả các popup khác trước khi mở
+        document.querySelectorAll('.custom-popup').forEach(popup => {
+            if(popup.id !== popupId) popup.style.display = 'none';
+        });
+
+        const popup = document.getElementById(popupId);
+        if (popup.style.display === 'block') {
+            popup.style.display = 'none';
+        } else {
+            popup.style.display = 'block';
+        }
+    }
+
+    // Ẩn popup khi click ra ngoài
+    document.addEventListener('click', function(event) {
+        const isClickInsideWishlist = document.getElementById('btn-wishlist-toggle').contains(event.target) || document.getElementById('wishlist-popup').contains(event.target);
+        const isClickInsideCart = document.getElementById('btn-cart-toggle').contains(event.target) || document.getElementById('cart-popup').contains(event.target);
+        
+        if (!isClickInsideWishlist) document.getElementById('wishlist-popup').style.display = 'none';
+        if (!isClickInsideCart) document.getElementById('cart-popup').style.display = 'none';
+    });
+
+    // Logic Xóa Yêu thích (Gọi API)
+    function removeWishlist(wishlistId) {
+        const item = document.getElementById('wishlist-item-' + wishlistId);
+        if (item) item.remove();
+        // Cần gọi API Spring Boot để xóa trong database
+    }
+
+    // Logic Xóa Giỏ hàng (Gọi API)
+    function removeCartItem(cartItemId) {
+        const item = document.getElementById('cart-item-' + cartItemId);
+        if (item) item.remove();
+        // Cần gọi API Spring Boot để xóa trong database
+    }
+
+    // Chuyển nhanh từ Wishlist sang Cart
+    function addToCartFromWishlist(productId, variantId) {
+        alert("Đã thêm sản phẩm vào giỏ hàng!");
+        document.getElementById('wishlist-popup').style.display = 'none';
+        document.getElementById('cart-popup').style.display = 'block';
+        // Cần gọi API Spring Boot để thêm dữ liệu vào giỏ hàng
+    }
+</script>
+
 <th:block layout:fragment="extra-script"></th:block>
 
 </body>
