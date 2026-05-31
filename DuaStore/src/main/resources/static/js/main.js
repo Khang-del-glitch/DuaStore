@@ -294,3 +294,200 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+//khang
+// ==========================================
+// 1. ĐÓNG / MỞ POPUP (Yêu thích & Giỏ hàng)
+// ==========================================
+function togglePopup(popupId) {
+    // Ẩn tất cả các popup khác trước khi mở
+    document.querySelectorAll('.custom-popup').forEach(popup => {
+        if(popup.id !== popupId) popup.style.display = 'none';
+    });
+
+    const popup = document.getElementById(popupId);
+    if (popup.style.display === 'block') {
+        popup.style.display = 'none';
+    } else {
+        popup.style.display = 'block';
+    }
+}
+
+// Ẩn popup khi click ra ngoài vùng popup
+document.addEventListener('click', function(event) {
+    const btnWishlist = document.getElementById('btn-wishlist-toggle');
+    const popupWishlist = document.getElementById('wishlist-popup');
+    const btnCart = document.getElementById('btn-cart-toggle');
+    const popupCart = document.getElementById('cart-popup');
+
+    if (btnWishlist && popupWishlist) {
+        const isClickInsideWishlist = btnWishlist.contains(event.target) || popupWishlist.contains(event.target);
+        if (!isClickInsideWishlist) popupWishlist.style.display = 'none';
+    }
+
+    if (btnCart && popupCart) {
+        const isClickInsideCart = btnCart.contains(event.target) || popupCart.contains(event.target);
+        if (!isClickInsideCart) popupCart.style.display = 'none';
+    }
+});
+
+// ==========================================
+// 2. XÓA SẢN PHẨM KHỎI POPUP
+// ==========================================
+function removeWishlist(wishlistId) {
+    const item = document.getElementById('wishlist-item-' + wishlistId);
+    if (item) item.remove();
+    // Sau này ghép code gọi API Spring Boot ở đây
+}
+
+function removeCartItem(cartItemId) {
+    const item = document.getElementById('cart-item-' + cartItemId);
+    if (item) item.remove();
+    // Sau này ghép code gọi API Spring Boot ở đây
+}
+
+// ==========================================
+// 3. XỬ LÝ CHUYỂN TỪ YÊU THÍCH SANG GIỎ HÀNG
+// ==========================================
+function addToCartFromWishlist(productId, variantId) {
+    alert("Đã thêm sản phẩm vào giỏ hàng!");
+    document.getElementById('wishlist-popup').style.display = 'none';
+    document.getElementById('cart-popup').style.display = 'block';
+    // Sau này ghép code gọi API Spring Boot ở đây
+}
+
+// ==========================================
+// 4. XỬ LÝ CLICK THẢ TIM BẰNG FETCH API (Đã bỏ check Đăng nhập)
+// ==========================================
+function toggleWishlist(btnElement, productId) {
+    const icon = btnElement.querySelector('i');
+    const container = document.getElementById('wishlist-items-container');
+    
+    const card = btnElement.closest('.ds-product-card');
+    const productName = card ? card.querySelector('.ds-product-name').innerText : 'Sản phẩm ' + productId;
+    const productPrice = card ? card.querySelector('.ds-product-price').innerText : '';
+
+    fetch('/api/wishlist/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            if (btnElement.classList.contains('active')) {
+                // Đang thích -> Hủy thích
+                btnElement.classList.remove('active');
+                icon.classList.remove('bi-heart-fill'); 
+                icon.classList.add('bi-heart');         
+                
+                const itemToRemove = document.getElementById('wishlist-item-' + productId);
+                if(itemToRemove) itemToRemove.remove();
+            } else {
+                // Chưa thích -> Thêm yêu thích
+                btnElement.classList.add('active');
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill'); 
+
+                const dummyItem = document.getElementById('wishlist-item-1'); 
+                if(dummyItem && productId !== 1) dummyItem.remove(); 
+
+                const html = `
+                    <div class="popup-item" id="wishlist-item-${productId}">
+                        <div style="width: 50px; height: 50px; background: #e5e5e5; border-radius: 4px; margin-right: 15px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-box-seam text-secondary"></i></div>
+                        <div class="popup-item-info">
+                            <a href="/san-pham/${productId}">${productName}</a>
+                            <div class="text-danger fw-semibold mt-1">${productPrice}</div>
+                            <button class="btn btn-sm btn-outline-primary mt-2 w-100" onclick="addToCartFromWishlist(${productId}, null)">
+                                <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                            </button>
+                        </div>
+                        <button class="btn-delete-item" onclick="removeWishlist(${productId})" title="Xóa">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            }
+        }
+    })
+    .catch(error => console.log("Lỗi: ", error));
+}
+
+// ==========================================
+// 5. XỬ LÝ CLICK THÊM VÀO GIỎ BẰNG FETCH API (Đã bỏ check Đăng nhập)
+// ==========================================
+function addToCart(productId, variantId, quantity) {
+    const container = document.getElementById('cart-items-container');
+    const cartPopup = document.getElementById('cart-popup');
+
+    const btnAdd = document.querySelector(`.ds-add-cart[data-id="${productId}"]`);
+    const productName = btnAdd ? btnAdd.getAttribute('data-name') : 'Sản phẩm ' + productId;
+    const card = btnAdd ? btnAdd.closest('.ds-product-card') : null;
+    const productPrice = card ? card.querySelector('.ds-product-price').innerText : 'Đang cập nhật';
+    
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            productId: productId, 
+            variantId: variantId, 
+            quantity: quantity 
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            let existingItem = document.getElementById('cart-item-' + productId);
+            if(!existingItem) {
+                const dummyCart = document.getElementById('cart-item-1');
+                if(dummyCart && productId !== 1) dummyCart.remove();
+
+                const html = `
+                    <div class="popup-item" id="cart-item-${productId}">
+                        <div style="width: 50px; height: 50px; background: #e5e5e5; border-radius: 4px; margin-right: 15px; display: flex; align-items: center; justify-content: center;"><i class="bi bi-box-seam text-secondary"></i></div>
+                        <div class="popup-item-info">
+                            <a href="/san-pham/${productId}" class="text-truncate d-block" style="max-width: 180px;">${productName}</a>
+                            <div class="mt-1">Số lượng: ${quantity} x <span class="text-danger fw-semibold">${productPrice}</span></div>
+                        </div>
+                        <button class="btn-delete-item" onclick="removeCartItem(${productId})" title="Xóa khỏi giỏ">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            }
+
+            alert("Đã thêm " + productName + " vào giỏ hàng!");
+            
+            if (cartPopup) {
+                const wishlistPopup = document.getElementById('wishlist-popup');
+                if(wishlistPopup) wishlistPopup.style.display = 'none';
+                
+                cartPopup.style.display = 'block';
+                setTimeout(() => { cartPopup.style.display = 'none'; }, 3000);
+            }
+        }
+    })
+    .catch(error => console.log("Lỗi: ", error));
+}
+
+// Hàm hỗ trợ xóa (không thay đổi)
+function removeWishlist(wishlistId) {
+    const item = document.getElementById('wishlist-item-' + wishlistId);
+    if (item) item.remove();
+    
+    const btnHeart = document.querySelector(`.btn-wishlist-card[onclick*="toggleWishlist(this, ${wishlistId})"]`);
+    if(btnHeart) {
+        btnHeart.classList.remove('active');
+        btnHeart.querySelector('i').classList.replace('bi-heart-fill', 'bi-heart');
+    }
+}
+
+function removeCartItem(cartItemId) {
+    const item = document.getElementById('cart-item-' + cartItemId);
+    if (item) item.remove();
+}
+
+function addToCartFromWishlist(productId, variantId) {
+    addToCart(productId, variantId, 1);
+}

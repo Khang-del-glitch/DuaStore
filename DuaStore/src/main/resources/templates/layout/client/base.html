@@ -236,6 +236,7 @@
                     <i class="bi bi-heart"></i>
                 </a>
 
+<<<<<<< Updated upstream
                 <!-- Giỏ hàng + badge -->
                 <a class="ds-icon-btn ds-cart-wrap" th:href="@{/gio-hang}"
                    title="Giỏ hàng" aria-label="Giỏ hàng">
@@ -247,6 +248,36 @@
                         0
                     </span>
                 </a>
+=======
+                    <div id="wishlist-popup" class="custom-popup">
+                        <h6 class="border-bottom pb-2 mb-0 fw-bold">Sản phẩm yêu thích</h6>
+                        
+                        <div id="wishlist-items-container">
+                            <div th:if="${#lists.isEmpty(myWishlist)}" class="text-center py-4 text-muted">
+                                <i class="bi bi-heartbreak" style="font-size: 2rem;"></i>
+                                <p class="mt-2 mb-0">Chưa có sản phẩm nào</p>
+                            </div>
+                            
+                            <div th:each="item : ${myWishlist}" class="popup-item" th:id="'wishlist-item-' + ${item.productId}">
+                                <div style="width: 50px; height: 50px; background: #e5e5e5; border-radius: 4px; margin-right: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    <img th:if="${item.hinhAnhHienThi != null}" th:src="@{${item.hinhAnhHienThi}}" class="w-100 h-100 object-fit-cover" alt="Ảnh SP">
+                                    <i th:unless="${item.hinhAnhHienThi != null}" class="bi bi-box-seam text-secondary"></i>
+                                </div>
+                                <div class="popup-item-info">
+                                    <a th:href="@{/san-pham/{id}(id=${item.productId})}" th:text="${item.tenSanPham}">Tên SP</a>
+                                    <div class="text-danger fw-semibold mt-1" th:text="${#numbers.formatDecimal(item.giaBan, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</div>
+                                    <button class="btn btn-sm btn-outline-primary mt-2 w-100" th:onclick="'addToCartFromWishlist(' + ${item.productId} + ', null)'">
+                                        <i class="bi bi-cart-plus"></i> Thêm vào giỏ
+                                    </button>
+                                </div>
+                                <button class="btn-delete-item" th:onclick="'removeWishlist(' + ${item.productId} + ')'" title="Xóa">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+>>>>>>> Stashed changes
 
                 <!-- ★ PROFILE / LOGIN (desktop)
                      session.loggedIn == true → avatar + dropdown (HS, Hoạt động, Đã lưu, Cài đặt, Theme, ĐX)
